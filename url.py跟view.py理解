@@ -1,0 +1,37 @@
+Django URL 调度器的理解：
+为了给一个APP设计URL，你需要创建一个Python模块。这个模块的具体内容就是把通过正则表达式来匹配到你对应的请求的那个view中的函数，找到函数就是执行了函数的动作。
+说白了，URL.py的作用就是建立一种匹配模式，通过这种匹配模式来找到对应请求的view.py中的函数，然后执行函数（函数的作用就是去做一件事情，这件事情可以包含好多的子步骤，但是被函数封装起来了）。
+
+cat url.py
+from django.conf.urls import url
+from django.contrib import admin
+from calc import views as calc_views
+
+
+urlpatterns = [
+    url(r'^$', calc_views.index, name='home'),                  -----------匹配views.py中的home函数
+    url(r'^add/$', calc_views.add, name='add'),                 -----------匹配add 函数
+    url(r'^add/(\d+)/(\d+)/$', calc_views.add_form, name='add_form'), -----匹配add_form函数
+    url(r'^admin/', admin.site.urls),
+]
+
+root@pt-dev:/home/zqxt_views# cat calc/views.py
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def add(request):
+	a = request.GET['a']
+	b = request.GET['b']
+	c = int(a) + int(b)
+	return HttpResponse(str(c))
+def add_form(request,a,b):
+	c = int(a) + int(b)
+	return HttpResponse(str(c))
+
+# Create your views here.
+def index(request):
+	return render(request, 'home.html')
+
