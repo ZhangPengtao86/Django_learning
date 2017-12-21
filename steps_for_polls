@@ -1,0 +1,121 @@
+创建一个项目
+django-admin startproject mysite
+让我们看一下startproject生成了什么：
+
+mysite/
+    manage.py
+    mysite/
+        __init__.py
+        settings.py
+        urls.py
+        wsgi.py
+        
+ 数据库的建立
+ python manage.py migrate
+ 开发服务器¶
+让我们验证一下你的Django项目是否工作。 如果你不在外层的mysite目录下，那么进入这个目录，然后运行以下命令：
+
+$ python manage.py runserver
+你将看到命令行下输出了以下内容：
+
+Performing system checks...
+
+0 errors found
+May 13, 2015 - 15:50:53
+Django version 1.8, using settings 'mysite.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+既然服务器已经运行，请用你的浏览器访问 http://127.0.0.1:8000/。在淡蓝色背景下，你将看到一个“Welcome to Django”的页面。 它运行成功了！
+
+默认情况下，runserver命令在内部IP的8000端口启动开发服务器。
+
+如果你需改变服务器的端口，把要使用的端口作为一个命令行参数传递给它。 例如，这个命令在8080端口启动服务器：
+
+$ python manage.py runserver 8080
+如果你需改变服务器的IP地址，把IP地址和端口号放到一起。 因此若要监听所有的外网IP，请使用（如果你想在另外一台电脑上展示你的工作，会非常有用）：
+
+$ python manage.py runserver 0.0.0.0:8000
+
+创建模型
+$ python manage.py startapp polls
+这将创建一个目录polls，它的结构如下：
+
+polls/
+    __init__.py
+    admin.py
+    migrations/
+        __init__.py
+    models.py
+    tests.py
+    views.py
+    
+这些概念通过简单的Python类来表示。 编辑polls/models.py文件，并让它看起来像这样：
+
+polls/models.py
+from django.db import models
+
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+    
+激活模型
+但是，我们首先得告诉项目：polls应用已经安装。 
+
+原理:
+
+Django 应用是可以“热插拔”的，即可以在多个项目中使用同一个应用，也可以分发这些应用， 因为它们不需要与某个特定的Django安装绑定。
+
+再次编辑mysite/settings.py文件，并修改INSTALLED_APPS设置以包含字符串'polls'。所以它现在是这样的：
+
+mysite/settings.py
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'polls',
+)
+
+现在Django知道要包含polls应用。 让我们运行另外一个命令：
+
+$ python manage.py makemigrations polls
+你应该看到类似下面的内容：
+
+Migrations for 'polls':
+  0001_initial.py:
+    - Create model Question
+    - Create model Choice
+    - Add field question to choice
+通过运行makemigrations告诉Django，已经对模型做了一些更改（在这个例子中，你创建了一个新的模型）并且会将这些更改记录为迁移文件。
+
+$ python manage.py sqlmigrate polls 0001
+现在，再次运行migrate以在你的数据库中创建模型所对应的表：
+
+$ python manage.py migrate
+Operations to perform:
+  Synchronize unmigrated apps: staticfiles, messages
+  Apply all migrations: admin, contenttypes, polls, auth, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+  Installing custom SQL...
+Running migrations:
+  Rendering model states... DONE
+  Applying <migration name>... OK
+  
+迁移功能非常强大，可以让你在开发过程中不断修改你的模型而不用删除数据库或者表然后再重新生成一个新的 —— 它专注于升级你的数据库且不丢失数据。 我们将在本教程的后续章节对迁移进行深入地讲解，但是现在，请记住实现模型变更的三个步骤：
+
+修改你的模型（在models.py文件中）。
+运行python manage.py makemigrations ，为这些修改创建迁移文件
+运行python manage.py migrate ，将这些改变更新到数据库中。
+将生成和应用迁移文件的命令分成几个命令来执行，是因为你可能需要将迁移文件提交到你的版本控制系统中并跟随你的应用一起变化； 这样做不仅可以使开发变得更加简单，而且对其他开发者以及上线生产非常有用。
+ 
