@@ -1,0 +1,8 @@
+**每一个Django Model都继承自 django.db.models.Model.
+**在Model当中每个属性attribute都代表一个database field（字段或者列或者).
+**=======> 在电子表格中，“列”与数据库中 的“ 字段 ”相当，“行”与“记录”相当，这里输入的“姓名”就将成为一个新的字段。 
+|name    | age | weight|
+|Pengtao | 30  | 70kg  |
+|Linxi   | 2   | 10kg  | 
+
+**通过Django Model API 可以执行数据库的增删改查，而不需要写一些数据库的查询语句。
